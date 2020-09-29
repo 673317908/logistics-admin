@@ -4,9 +4,14 @@ import router from "./router";
 import store from "./store";
 
 import "../src/styles/reset.css"  // 重置样式
-import ElementUI from "element-ui";
-import "element-ui/lib/theme-chalk/index.css";
-Vue.use(ElementUI);
+// import ElementUI from "element-ui";
+// import "element-ui/lib/theme-chalk/index.css";
+// Vue.use(ElementUI);
+
+import ViewUI from 'view-design';
+import 'view-design/dist/styles/iview.css';
+Vue.use(ViewUI);
+
 
 Vue.config.productionTip = false;
 
