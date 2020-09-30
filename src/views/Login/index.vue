@@ -1,18 +1,67 @@
 <template>
   <div class="account">
-    <div class="account_content">dsdadsadsaddad</div>
+    <div class="account_content">
+      <div class="tabList">
+        <ul>
+          <li
+            v-for="(item, index) in tabData"
+            :key="index"
+            @click="active(index)"
+            :class="activeIndex === index ? 'active_css' : 'not_active'"
+          >
+            {{ item }}
+          </li>
+        </ul>
+      </div>
+      <Login v-show="activeIndex == 0" ref="login" />
+      <Register v-show="activeIndex == 1" ref="register" />
+      <Button
+        type="primary"
+        style="width:200px; margin-left:280px;"
+        size="large"
+        @click="sgin"
+        >{{ activeIndex === 0 ? activeText : "注册" }}</Button
+      >
+    </div>
   </div>
 </template>
 
 <script>
+import Login from "./components/login.vue";
+import Register from "./components/register.vue";
 export default {
-  components: {},
+  components: { Login, Register },
   data() {
-    return {};
+    return {
+      tabData: ["登录", "注册"],
+      activeIndex: 0,
+      activeText: "登录"
+    };
   },
   created() {},
   mounted() {},
-  methods: {}
+  methods: {
+    //   tab切换
+    active(index) {
+      this.activeIndex = index;
+      if (this.activeIndex == 0) {
+        this.$refs.login.handReset("formValidate");
+      } else {
+        this.$refs.register.handReset("formValidate");
+      }
+    },
+    // 登录或注册
+    sgin() {
+      if (this.activeIndex == 0) {
+        this.$refs.login.validateForm("formValidate");
+      } else {
+        this.$refs.register.validateForm("formValidate");
+      }
+      this.$router.push({
+        name: "Home"
+      });
+    }
+  }
 };
 </script>
 
@@ -24,7 +73,8 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background: url("../../assets/login_bg.jpg") no-repeat center center/cover;
+  //   background: url("../../assets/login_bg.jpg") no-repeat center center/cover;
+  background-color: #515a6e;
   .account_content {
     overflow: hidden;
     position: absolute;
@@ -35,6 +85,27 @@ export default {
     transform: translate(-50%, -50%);
     background: white;
     border-radius: 6px;
+    transition: all 1s ease;
+    padding: 30px;
+    .tabList {
+      ul {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        li {
+          margin: 30px 10px;
+          user-select: none;
+          cursor: pointer;
+        }
+      }
+    }
   }
+}
+.active_css {
+  font-size: 30px;
+  color: #515a6e;
+}
+.not_active {
+  font-size: 20px;
 }
 </style>
