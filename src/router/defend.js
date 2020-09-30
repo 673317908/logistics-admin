@@ -1,6 +1,8 @@
 import router from "./index"
 import {
-    getToken
+    getToken,
+    removeToken,
+    removeUserName
 } from "../utils/comm"
 
 
@@ -9,8 +11,8 @@ router.beforeEach((to, from, next) => {
     next()
     // if (getToken()) {
     //     if (to.path == '/login') {
-    //         sessionStorage.removeItem("token")
-    //         sessionStorage.removeItem("user_name")
+    //        removeToken()
+    //         removeUserName()
     //         next()
     //     } else {
     //         next()
