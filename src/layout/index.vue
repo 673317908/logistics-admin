@@ -9,24 +9,65 @@
         v-model="isCollapsed"
         :style="{ height: '100vh' }"
       >
-        <Menu
+        <!-- <Menu
           active-name="1-2"
           theme="dark"
           width="auto"
           :class="menuitemClasses"
+          @on-select="activeMenu"
         >
-          <MenuItem name="1-1">
-            <Icon type="ios-navigate"></Icon>
-            <span>Option 1</span>
-          </MenuItem>
-          <MenuItem name="1-2">
-            <Icon type="ios-search"></Icon>
-            <span>Option 2</span>
-          </MenuItem>
-          <MenuItem name="1-3">
-            <Icon type="ios-settings"></Icon>
-            <span>Option 3</span>
-          </MenuItem>
+          <template v-for="(item, index) in routers">
+            <MenuItem
+              :name="index"
+              :key="index"
+              v-if="item.hidden"
+              :to="item.path"
+            >
+              <Icon :type="item.icon ? item.icon : ''"></Icon>
+              <span>{{ item.meta.title }}</span>
+            </MenuItem>
+          </template>
+        </Menu> -->
+        <Menu
+          active-name="1-2"
+          theme="dark"
+          width="auto"
+          @on-select="activeMenu"
+          :accordion='true'
+        >
+          <template v-for="(item, index) in routers">
+            <MenuItem
+              :name="item.path"
+              :key="index"
+              v-if="item.hidden && !item.children"
+              :to="item.path"
+            >
+              <Icon :type="item.icon ? item.icon : ''"></Icon>
+              <span>{{ item.meta.title }}</span>
+            </MenuItem>
+          </template>
+          <template v-for="(item, index) in routers">
+            <Submenu
+              :name="index"
+              :key="index"
+              v-if="item.hidden && item.children"
+            >
+              <template slot="title">
+                <Icon :type="item.icon"></Icon>
+                {{ item.meta.title }}
+              </template>
+              <template v-if="item.children">
+                <MenuItem
+                  :name="index2"
+                  v-for="(item2, index2) in item.children"
+                  :key="index2"
+                  :to="item2.path"
+                >
+                  {{ item2.meta.title }}</MenuItem
+                >
+              </template>
+            </Submenu>
+          </template>
         </Menu>
       </Sider>
       <Layout>
@@ -58,12 +99,16 @@
         </Header>
         <Content :style="{ margin: '0 20px', minHeight: '260px' }">
           <Breadcrumb :style="{ margin: '16px 0' }">
-            <BreadcrumbItem>Home</BreadcrumbItem>
-            <BreadcrumbItem>Components</BreadcrumbItem>
-            <BreadcrumbItem>Layout</BreadcrumbItem>
+            <template v-for="(item, index) in breadcrumbList">
+              <BreadcrumbItem :key="index" :to="{ path: item.path }">{{
+                item.meta.title
+              }}</BreadcrumbItem>
+            </template>
           </Breadcrumb>
           <Card>
-            <div style="height: 600px">Content</div>
+            <div style="height: 700px">
+              <router-view></router-view>
+            </div>
           </Card>
         </Content>
       </Layout>
@@ -75,7 +120,9 @@
 export default {
   data() {
     return {
-      isCollapsed: false
+      isCollapsed: false,
+      breadcrumbList: [],
+      routers: {}
     };
   },
   computed: {
@@ -86,13 +133,37 @@ export default {
       return ["menu-item", this.isCollapsed ? "collapsed-menu" : ""];
     }
   },
+  watch: {
+    $route() {
+      this.getBreadcrumb();
+    }
+  },
   methods: {
     collapsedSider() {
       this.$refs.side1.toggleCollapse();
     },
     loginOut(route) {
       this.$router.push(route);
+    },
+    getBreadcrumb(index) {
+      let matched = this.$route.matched.filter(item => item.name);
+      const first = matched[index];
+      if (
+        first &&
+        first.name.trim().toLocaleLowerCase() !== "Home".toLocaleLowerCase()
+      ) {
+        matched = [{ path: "/home", meta: { title: "首页" } }].concat(matched);
+      }
+      this.breadcrumbList = matched;
+    },
+    activeMenu(name) {
+      this.getBreadcrumb(name);
     }
+  },
+  mounted() {
+    this.routers = this.$router.options.routes;
+    console.log(this.routers);
+    this.getBreadcrumb();
   }
 };
 </script>
@@ -129,7 +200,7 @@ export default {
   display: inline-block;
   overflow: hidden;
   width: 69px;
-  text-overflow: ellipsis;
+  // text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: bottom;
   transition: width 0.2s ease 0.2s;
